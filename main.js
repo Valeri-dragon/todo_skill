@@ -1,62 +1,127 @@
 (() => {
-    const l = (log, str = ' ') => {
-        console.log(log, str);
-    }
-    l("hello")
-    /**
-     * https://todomvc.com/ Реализации приложения TODO на различных языках и фреймворках
-     */
+  const l = (log, str = " ") => {
+    console.log(log, str);
+  };
+   /**
+   * https://todomvc.com/ Реализации приложения TODO на различных языках и фреймворках
+   */
 
+  // Создаём и возвращаем заголовок приложения
+  const createAppTitle = (title) => {
+    let appTitle = document.createElement("h2");
 
-    // Создаём и возвращаем заголовок приложения
-    const createAppTitle = (title) => {
-        let appTitle = document.createElement('h2')
-        appTitle.classList.add('pt-2', 'text-center', 'mb-3')
-        appTitle.innerHTML = title;
-        return appTitle;
-    }
+    appTitle.classList.add("pt-2", "text-center", "mb-3");
+    appTitle.innerHTML = title;
+    return appTitle;
+  };
 
-    // Создаём и возвращаем форму для создания списка дела
-    const createTodoItemForm = () => {
-        let form = document.createElement('form');
-        let input = document.createElement('input');
-        let btnWrapper = document.createElement('div');
-        let btn = document.createElement('button');
+  // Создаём и возвращаем форму для создания списка дела
+  const createTodoItemForm = () => {
+    let form = document.createElement("form");
+    let input = document.createElement("input");
+    let btnWrapper = document.createElement("div");
+    let btn = document.createElement("button");
 
-        form.classList.add('input-group', 'mb-3');
-        input.classList.add('form-control');
-        input.placeholder = 'Введите название нового дела';
-        btnWrapper.classList.add('input-group-append');
-        btn.classList.add('btn', 'btn-primary');
-        btn.textContent = 'Добавить дело';
+    form.classList.add("input-group", "mb-3");
+    input.classList.add("form-control");
+    input.placeholder = "Введите название нового дела";
+    btnWrapper.classList.add("input-group-append");
+    btn.classList.add("btn", "btn-primary");
+    btn.textContent = "Добавить дело";
 
-        btnWrapper.append(btn);
-        form.append(input);
-        form.append(btnWrapper);
-        return {
-            form,
-            input,
-            btn
+    btnWrapper.append(btn);
+    form.append(input);
+    form.append(btnWrapper);
+    return {
+      form,
+      input,
+      btn,
+    };
+  };
+
+  // Создаём и возвращаем список элементов
+  const createTodoList = () => {
+    let list = document.createElement("ul");
+    list.classList.add("list-group");
+    return list;
+  };
+  let count = 0;
+  const createTodoItem = (name) => {
+    let itemList = document.createElement("li");
+    count++;
+    // кнопки помещаем в элемент, который красиво покажет их в одной группе
+    let btnGroup = document.createElement("div");
+    let doneBtn = document.createElement("button");
+    let deleteBtn = document.createElement("button");
+    // устанавливаем стили для элемента списка, а также для размещения кнопок
+    // в его правой части с помощью flex
+    itemList.classList.add(
+      "list-group-item",
+      "d-flex",
+      "justify-content-between",
+      "align-items-center",
+      "mb-3"
+    );
+    itemList.setAttribute("id", count);
+    itemList.textContent = name;
+    btnGroup.classList.add("btn-group", "btn-group-sm");
+    doneBtn.classList.add("btn", "btn-success", "mr-2");
+    doneBtn.textContent = "Готово";
+    deleteBtn.classList.add("btn", "btn-danger");
+    deleteBtn.textContent = "Удалить";
+    //вкладываем кнопки в отдельный элемент, чтобы он объединились в один блок
+    btnGroup.append(doneBtn);
+    btnGroup.append(deleteBtn);
+    itemList.append(btnGroup);
+    //приложению нужен доступ к самому элементу и кнопкам, чтобы обработть события нажатия
+    return {
+      itemList,
+      doneBtn,
+      deleteBtn,
+    };
+  };
+  document.addEventListener("DOMContentLoaded", () => {
+    const containerToDoApp = document.querySelector("#todo__app");
+    let todoAppTitle = createAppTitle("Список дел");
+    let todoItemForm = createTodoItemForm();
+    let todoList = createTodoList();
+    containerToDoApp.append(todoAppTitle);
+    containerToDoApp.append(todoItemForm.form);
+    containerToDoApp.append(todoList);
+    // браузер создаёт событие submit на форме по нажатию на Enter или на кнопку содания дела
+    todoItemForm.form.addEventListener("click", (e) => {
+      e.preventDefault();
+      // игнорируем создание элемента, если пользователь ничего не ввёл в поле
+      if (!todoItemForm.input.value) {
+        return;
+      }
+      // создаём и добавляем в список новое дело с названием из поля ввода
+      todoList.append(createTodoItem(todoItemForm.input.value).itemList);
+      // обнуляем значение в поле, чтобы не пришлось стирть его в ручную
+      todoItemForm.input.value = "";
+    });
+    // если есть список слушаем по каком элементу на этом списке произошёл клик и производим соответсвующие действия, в зависимости от // клика
+    if (todoList) {
+      todoList.addEventListener("click", (e) => {
+        if (
+          e.target.parentElement.parentElement.id ===
+            e.target.parentElement.parentElement.getAttribute("id") &&
+          e.target.classList.contains("btn-danger")
+        ) {
+          if (confirm("Вы уверены?")) {
+            e.target.parentElement.parentElement.remove();
+          }
         }
+        if (
+          e.target.parentElement.parentElement.id ===
+            e.target.parentElement.parentElement.getAttribute("id") &&
+          e.target.classList.contains("btn-success")
+        ) {
+          e.target.parentElement.parentElement.classList.toggle(
+            "list-group-item-success"
+          );
+        }
+      });
     }
-
-    // Создаём и возвращаем список элементов
-    const createTodoList = () => {
-        let list = document.createElement('ul');
-        list.classList.add('list-group')
-        let itemList = document.createElement('li')
-        itemList.textContent = 'Изучить JavaScript'
-        list.append(itemList)
-        return list
-    }
-    document.addEventListener('DOMContentLoaded', () => {
-        const containerToDoApp = document.querySelector('#todo__app');
-        let todoAppTitle = createAppTitle('Список дел');
-        let todoItemForm = createTodoItemForm();
-        let todoList = createTodoList();
-        containerToDoApp.append(todoAppTitle)
-        containerToDoApp.append(todoItemForm.form)
-        containerToDoApp.append(todoList)
-    })
-
-})()
+  });
+})();
