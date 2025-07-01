@@ -50,6 +50,7 @@
   const createTodoItem = (name) => {
     let itemList = document.createElement("li");
     count++;
+
     // кнопки помещаем в элемент, который красиво покажет их в одной группе
     let btnGroup = document.createElement("div");
     let doneBtn = document.createElement("button");
@@ -81,7 +82,20 @@
       deleteBtn,
     };
   };
-
+  const getItemLocalStorage = () => {
+    const listToDo = document.querySelector('.list-group');
+    for (let i = 0; i < localStorage.length; i++) {
+      let key = localStorage.key(i);
+      if (key) {
+        count += parseInt(localStorage.length)
+      }
+      if (listToDo) {
+        listToDo.insertAdjacentHTML('afterbegin', `
+        <li class="list-group-item d-flex justify-content-between align-items-center mb-3" id="${key}">${localStorage.getItem(key)}<div class="btn-group btn-group-sm"><button class="btn btn-success mr-2">Готово</button><button class="btn btn-danger">Удалить</button></div></li>
+        `)
+      }
+    }
+  }
   const createTodoApp = (container, title = 'Список дел') => {
     let todoAppTitle = createAppTitle(title);
     let todoItemForm = createTodoItemForm();
@@ -90,17 +104,34 @@
     container.append(todoItemForm.form);
     container.append(todoList);
     // браузер создаёт событие submit на форме по нажатию на Enter или на кнопку содания дела
-    todoItemForm.form.addEventListener("click", (e) => {
+    todoItemForm.form.addEventListener("submit", (e) => {
       e.preventDefault();
       // игнорируем создание элемента, если пользователь ничего не ввёл в поле
       if (!todoItemForm.input.value) {
         return;
       }
+      let itemList = createTodoItem(todoItemForm.input.value).itemList;
       // создаём и добавляем в список новое дело с названием из поля ввода
-      todoList.append(createTodoItem(todoItemForm.input.value).itemList);
+
+
+
+
+
+
+      todoList.append(itemList);
+      localStorage.setItem(itemList.id, todoItemForm.input.value);
       // обнуляем значение в поле, чтобы не пришлось стирть его в ручную
       todoItemForm.input.value = "";
     });
+
+
+    // удаление дела из списка
+    const deleteItemTodoList = (elem) => {
+      console.log(localStorage)
+      console.log(elem)
+      if (confirm("Вы уверены?")) { elem.remove(); }
+    }
+
     // если есть список слушаем по каком элементу на этом списке произошёл клик и производим соответсвующие действия, в зависимости от // клика
     if (todoList) {
       todoList.addEventListener("click", (e) => {
@@ -109,10 +140,10 @@
           e.target.parentElement.parentElement.getAttribute("id") &&
           e.target.classList.contains("btn-danger")
         ) {
-          if (confirm("Вы уверены?")) {
-            e.target.parentElement.parentElement.remove();
-          }
+
+          deleteItemTodoList(e.target.parentElement.parentElement);
         }
+
         if (
           e.target.parentElement.parentElement.id ===
           e.target.parentElement.parentElement.getAttribute("id") &&
@@ -124,6 +155,11 @@
         }
       });
     }
+    getItemLocalStorage()
   }
+
+
+
   window.createTodoApp = createTodoApp;
+
 })();
