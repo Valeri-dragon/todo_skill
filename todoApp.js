@@ -2,14 +2,15 @@
   const l = (log, str = " ") => {
     console.log(log, str);
   };
-   /**
-   * https://todomvc.com/ Реализации приложения TODO на различных языках и фреймворках
-   */
+  /**
+  * https://todomvc.com/ Реализации приложения TODO на различных языках и фреймворках
+  */
 
   // Создаём и возвращаем заголовок приложения
   const createAppTitle = (title) => {
     let appTitle = document.createElement("h2");
-
+    let pageTitle = document.querySelector('title');
+    pageTitle.textContent = `${pageTitle.textContent} || ${title}`;
     appTitle.classList.add("pt-2", "text-center", "mb-3");
     appTitle.innerHTML = title;
     return appTitle;
@@ -62,7 +63,7 @@
       "align-items-center",
       "mb-3"
     );
-    itemList.setAttribute("id", count);
+    itemList.setAttribute("id", `itemList-${count}`);
     itemList.textContent = name;
     btnGroup.classList.add("btn-group", "btn-group-sm");
     doneBtn.classList.add("btn", "btn-success", "mr-2");
@@ -80,14 +81,14 @@
       deleteBtn,
     };
   };
-  document.addEventListener("DOMContentLoaded", () => {
-    const containerToDoApp = document.querySelector("#todo__app");
-    let todoAppTitle = createAppTitle("Список дел");
+
+  const createTodoApp = (container, title = 'Список дел') => {
+    let todoAppTitle = createAppTitle(title);
     let todoItemForm = createTodoItemForm();
     let todoList = createTodoList();
-    containerToDoApp.append(todoAppTitle);
-    containerToDoApp.append(todoItemForm.form);
-    containerToDoApp.append(todoList);
+    container.append(todoAppTitle);
+    container.append(todoItemForm.form);
+    container.append(todoList);
     // браузер создаёт событие submit на форме по нажатию на Enter или на кнопку содания дела
     todoItemForm.form.addEventListener("click", (e) => {
       e.preventDefault();
@@ -105,7 +106,7 @@
       todoList.addEventListener("click", (e) => {
         if (
           e.target.parentElement.parentElement.id ===
-            e.target.parentElement.parentElement.getAttribute("id") &&
+          e.target.parentElement.parentElement.getAttribute("id") &&
           e.target.classList.contains("btn-danger")
         ) {
           if (confirm("Вы уверены?")) {
@@ -114,7 +115,7 @@
         }
         if (
           e.target.parentElement.parentElement.id ===
-            e.target.parentElement.parentElement.getAttribute("id") &&
+          e.target.parentElement.parentElement.getAttribute("id") &&
           e.target.classList.contains("btn-success")
         ) {
           e.target.parentElement.parentElement.classList.toggle(
@@ -123,5 +124,6 @@
         }
       });
     }
-  });
+  }
+  window.createTodoApp = createTodoApp;
 })();
