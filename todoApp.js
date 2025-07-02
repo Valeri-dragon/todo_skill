@@ -63,6 +63,8 @@
     );
     itemList.setAttribute("id", `itemList-${count}`);
     itemList.textContent = name;
+
+
     btnGroup.classList.add("btn-group", "btn-group-sm");
     doneBtn.classList.add("btn", "btn-success", "mr-2");
     doneBtn.textContent = "Готово";
@@ -81,19 +83,18 @@
   };
   const getItemLocalStorage = (title) => {
     const listToDo = document.querySelector('.list-group');
-    
+
     for (let i = 0; i < localStorage.length; i++) {
-     
+
       let key = localStorage.key(i);
       let listArr = JSON.parse(localStorage.getItem(key))
-     
+
       listArr.forEach(element => {
         let objElem = Object.values(element)
-
         if (listToDo && key === title) {
           count = parseInt(objElem[0].split(/[-]/).pop())
           listToDo.insertAdjacentHTML('afterbegin', `
-          <li class="list-group-item d-flex justify-content-between align-items-center mb-3" id="${objElem[0]}">${objElem[1]}<div class="btn-group btn-group-sm"><button class="btn btn-success mr-2">Готово</button><button class="btn btn-danger">Удалить</button></div></li>
+          <li class="list-group-item d-flex justify-content-between align-items-center mb-3 ${element.done ? 'list-group-item-success' : ''}" id="${objElem[0]}">${objElem[1]}<div class="btn-group btn-group-sm"><button class="btn btn-success mr-2">Готово</button><button class="btn btn-danger">Удалить</button></div></li>
           `)
         }
       });
@@ -122,21 +123,19 @@
       const todoBody = {
         id: itemList.id,
         text: todoItemForm.input.value,
+        done: false,
       }
-
       taskList.push(todoBody)
       todoList.append(itemList);
       localStorage.setItem(title, JSON.stringify(taskList));
       // обнуляем значение в поле, чтобы не пришлось стирть его в ручную
       todoItemForm.input.value = "";
     });
-
     // возвращает индекс элемента по id
     const getIndexById = (array, id) => {
       const elem = array.map((item) => item.id).indexOf(id) //!== -1
       return elem;
     }
-
     // удаление дела из списка
     const deleteItemTodoList = (elem) => {
       let taskList = [];
@@ -147,10 +146,11 @@
         localStorage.setItem(title, JSON.stringify(taskList));
       }
     }
-
     // если есть список слушаем по каком элементу на этом списке произошёл клик и производим соответсвующие действия, в зависимости от // клика
     if (todoList) {
+      //getItemLocalStorage(title)
       todoList.addEventListener("click", (e) => {
+
         if (
           e.target.parentElement.parentElement.id ===
           e.target.parentElement.parentElement.getAttribute("id") &&
@@ -158,20 +158,23 @@
         ) {
           deleteItemTodoList(e.target.parentElement.parentElement);
         }
-
         if (
           e.target.parentElement.parentElement.id ===
           e.target.parentElement.parentElement.getAttribute("id") &&
           e.target.classList.contains("btn-success")
         ) {
+          // изменение значение done
+          let itemInArray = taskList[getIndexById(taskList, e.target.parentElement.parentElement.getAttribute("id"))];
+          itemInArray.done = !itemInArray.done;
+
           e.target.parentElement.parentElement.classList.toggle(
             "list-group-item-success"
           );
+          localStorage.setItem(title, JSON.stringify(taskList));
         }
       });
+      getItemLocalStorage(title)
     }
-    getItemLocalStorage(title)
   }
-
   window.createTodoApp = createTodoApp;
 })();
