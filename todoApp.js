@@ -88,7 +88,7 @@
 
       let key = localStorage.key(i);
       let listArr = JSON.parse(localStorage.getItem(key))
-
+console.log(listArr)
       listArr.forEach(element => {
         let objElem = Object.values(element)
         if (listToDo && key === title) {
