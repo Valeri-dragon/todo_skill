@@ -1,7 +1,5 @@
 (() => {
-  const l = (log, str = " ") => {
-    console.log(log, str);
-  };
+
   /**
   * https://todomvc.com/ Реализации приложения TODO на различных языках и фреймворках
   */
@@ -50,7 +48,6 @@
   const createTodoItem = (name) => {
     let itemList = document.createElement("li");
     count++;
-
     // кнопки помещаем в элемент, который красиво покажет их в одной группе
     let btnGroup = document.createElement("div");
     let doneBtn = document.createElement("button");
@@ -82,24 +79,33 @@
       deleteBtn,
     };
   };
-  const getItemLocalStorage = () => {
+  const getItemLocalStorage = (title) => {
     const listToDo = document.querySelector('.list-group');
+    
     for (let i = 0; i < localStorage.length; i++) {
+     
       let key = localStorage.key(i);
-      if (key) {
-        count += parseInt(localStorage.length)
-      }
-      if (listToDo) {
-        listToDo.insertAdjacentHTML('afterbegin', `
-        <li class="list-group-item d-flex justify-content-between align-items-center mb-3" id="${key}">${localStorage.getItem(key)}<div class="btn-group btn-group-sm"><button class="btn btn-success mr-2">Готово</button><button class="btn btn-danger">Удалить</button></div></li>
-        `)
-      }
+      let listArr = JSON.parse(localStorage.getItem(key))
+     
+      listArr.forEach(element => {
+        let objElem = Object.values(element)
+
+        if (listToDo && key === title) {
+          count = parseInt(objElem[0].split(/[-]/).pop())
+          listToDo.insertAdjacentHTML('afterbegin', `
+          <li class="list-group-item d-flex justify-content-between align-items-center mb-3" id="${objElem[0]}">${objElem[1]}<div class="btn-group btn-group-sm"><button class="btn btn-success mr-2">Готово</button><button class="btn btn-danger">Удалить</button></div></li>
+          `)
+        }
+      });
     }
   }
   const createTodoApp = (container, title = 'Список дел') => {
+
     let todoAppTitle = createAppTitle(title);
     let todoItemForm = createTodoItemForm();
     let todoList = createTodoList();
+    let taskList = [];
+    taskList = JSON.parse(localStorage.getItem(title)) ? JSON.parse(localStorage.getItem(title)) : []
     container.append(todoAppTitle);
     container.append(todoItemForm.form);
     container.append(todoList);
@@ -113,23 +119,33 @@
       let itemList = createTodoItem(todoItemForm.input.value).itemList;
       // создаём и добавляем в список новое дело с названием из поля ввода
 
+      const todoBody = {
+        id: itemList.id,
+        text: todoItemForm.input.value,
+      }
 
-
-
-
-
+      taskList.push(todoBody)
       todoList.append(itemList);
-      localStorage.setItem(itemList.id, todoItemForm.input.value);
+      localStorage.setItem(title, JSON.stringify(taskList));
       // обнуляем значение в поле, чтобы не пришлось стирть его в ручную
       todoItemForm.input.value = "";
     });
 
+    // возвращает индекс элемента по id
+    const getIndexById = (array, id) => {
+      const elem = array.map((item) => item.id).indexOf(id) //!== -1
+      return elem;
+    }
 
     // удаление дела из списка
     const deleteItemTodoList = (elem) => {
-      console.log(localStorage)
-      console.log(elem)
-      if (confirm("Вы уверены?")) { elem.remove(); }
+      let taskList = [];
+      taskList = JSON.parse(localStorage.getItem(title)) ? JSON.parse(localStorage.getItem(title)) : []
+      if (confirm("Вы уверены?")) {
+        elem.remove();
+        taskList.splice(getIndexById(taskList, elem.id), 1);
+        localStorage.setItem(title, JSON.stringify(taskList));
+      }
     }
 
     // если есть список слушаем по каком элементу на этом списке произошёл клик и производим соответсвующие действия, в зависимости от // клика
@@ -140,7 +156,6 @@
           e.target.parentElement.parentElement.getAttribute("id") &&
           e.target.classList.contains("btn-danger")
         ) {
-
           deleteItemTodoList(e.target.parentElement.parentElement);
         }
 
@@ -155,11 +170,8 @@
         }
       });
     }
-    getItemLocalStorage()
+    getItemLocalStorage(title)
   }
 
-
-
   window.createTodoApp = createTodoApp;
-
 })();
