@@ -138,9 +138,7 @@ console.log(listArr)
     }
     // удаление дела из списка
     const deleteItemTodoList = (elem) => {
-      let taskList = [];
-      taskList = JSON.parse(localStorage.getItem(title)) ? JSON.parse(localStorage.getItem(title)) : []
-      if (confirm("Вы уверены?")) {
+            if (confirm("Вы уверены?")) {
         elem.remove();
         taskList.splice(getIndexById(taskList, elem.id), 1);
         localStorage.setItem(title, JSON.stringify(taskList));
